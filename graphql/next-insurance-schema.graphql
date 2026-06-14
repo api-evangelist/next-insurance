@@ -1,0 +1,909 @@
+"""
+ERGO NEXT Insurance – Conceptual GraphQL Schema
+Covers the NEXT Connect embedded insurance platform and partner-facing API surface.
+All types are conceptual; NEXT does not publish a public GraphQL endpoint.
+"""
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# ─── Root Types ────────────────────────────────────────────────────────────────
+
+type Query {
+  policy(id: ID!): Policy
+  policies(holderId: ID, status: PolicyStatus): [Policy!]!
+  quote(id: ID!): Quote
+  quotes(requestId: ID): [Quote!]!
+  claim(id: ID!): Claim
+  claims(policyId: ID, status: ClaimStatus): [Claim!]!
+  certificate(id: ID!): Certificate
+  certificates(policyId: ID): [Certificate!]!
+  partner(id: ID!): Partner
+  industryClasses(search: String): [IndustryClass!]!
+  coverageTypes: [CoverageType!]!
+  endorsements(policyId: ID!): [Endorsement!]!
+  renewal(policyId: ID!): Renewal
+  binder(id: ID!): Binder
+  webhooks(partnerId: ID!): [Webhook!]!
+}
+
+type Mutation {
+  submitQuoteRequest(input: QuoteRequestInput!): QuoteRequest!
+  bindPolicy(input: BinderRequestInput!): Binder!
+  submitClaim(input: ClaimInput!): Claim!
+  issueCertificate(input: CertificateInput!): Certificate!
+  addEndorsement(policyId: ID!, input: EndorsementInput!): Endorsement!
+  cancelPolicy(policyId: ID!, reason: String!): Cancellation!
+  renewPolicy(policyId: ID!): Renewal!
+  createWebhook(input: WebhookInput!): Webhook!
+  deleteWebhook(id: ID!): Boolean!
+  registerPartner(input: PartnerInput!): Partner!
+  addEmployee(policyId: ID!, input: EmployeeInput!): Employee!
+  addVehicle(policyId: ID!, input: VehicleInput!): Vehicle!
+  makePayment(input: PaymentInput!): PremiumPayment!
+}
+
+# ─── Policy ────────────────────────────────────────────────────────────────────
+
+type Policy {
+  id: ID!
+  policyNumber: String!
+  status: PolicyStatus!
+  effectiveDate: String!
+  expirationDate: String!
+  holder: PolicyHolder!
+  business: BusinessInfo!
+  coverages: [Coverage!]!
+  premium: Premium!
+  deductible: Deductible
+  endorsements: [Endorsement!]!
+  certificates: [Certificate!]!
+  claims: [Claim!]!
+  payments: [PremiumPayment!]!
+  renewal: Renewal
+  binder: Binder
+  partner: Partner
+  createdAt: String!
+  updatedAt: String!
+}
+
+enum PolicyStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  RENEWED
+  BOUND
+}
+
+# ─── Coverage ──────────────────────────────────────────────────────────────────
+
+type Coverage {
+  id: ID!
+  type: CoverageType!
+  limit: CoverageLimit!
+  deductible: Deductible
+  premium: Premium
+  description: String
+  effective: String!
+  expiration: String!
+}
+
+type CoverageType {
+  id: ID!
+  code: String!
+  name: String!
+  description: String
+  lineOfBusiness: LineOfBusiness!
+  coverageCategory: CoverageCategory
+}
+
+enum LineOfBusiness {
+  GENERAL_LIABILITY
+  WORKERS_COMP
+  BOP
+  COMMERCIAL_AUTO
+  PROFESSIONAL_LIABILITY
+  COMMERCIAL_PROPERTY
+  TOOLS_EQUIPMENT
+  EMPLOYMENT_PRACTICES_LIABILITY
+  PRODUCT_LIABILITY
+  LIQUOR_LIABILITY
+  TECH_COVERAGE
+  EMERGENCY_FUND
+}
+
+enum CoverageCategory {
+  PRIMARY
+  EXCESS
+  UMBRELLA
+  ENDORSEMENT
+}
+
+type CoverageLimit {
+  perOccurrence: Float!
+  aggregate: Float
+  personalAdvertisingInjury: Float
+  productsCompletedOps: Float
+  medicalExpense: Float
+  currency: String!
+}
+
+type Deductible {
+  amount: Float!
+  type: DeductibleType!
+  currency: String!
+}
+
+enum DeductibleType {
+  PER_OCCURRENCE
+  AGGREGATE
+  STRAIGHT
+  FRANCHISE
+}
+
+# ─── Premium ───────────────────────────────────────────────────────────────────
+
+type Premium {
+  annual: Float!
+  monthly: Float
+  breakdown: PremiumBreakdown!
+  currency: String!
+  paymentSchedule: PaymentSchedule!
+}
+
+type PremiumBreakdown {
+  base: Float!
+  taxes: Float!
+  fees: Float!
+  surcharges: Float!
+  discounts: Float
+  total: Float!
+}
+
+enum PaymentSchedule {
+  ANNUAL
+  MONTHLY
+  PAY_AS_YOU_GO
+  QUARTERLY
+}
+
+# ─── Quote ─────────────────────────────────────────────────────────────────────
+
+type Quote {
+  id: ID!
+  status: QuoteStatus!
+  request: QuoteRequest!
+  premium: Premium!
+  coverages: [Coverage!]!
+  validUntil: String!
+  carrier: String
+  createdAt: String!
+}
+
+enum QuoteStatus {
+  PENDING
+  READY
+  EXPIRED
+  BOUND
+  DECLINED
+}
+
+type QuoteRequest {
+  id: ID!
+  business: BusinessInfo!
+  coveragesRequested: [LineOfBusiness!]!
+  effectiveDate: String!
+  quotes: [Quote!]!
+  createdAt: String!
+}
+
+input QuoteRequestInput {
+  businessName: String!
+  industryClassCode: String!
+  annualRevenue: Float
+  employeeCount: Int
+  location: LocationInput!
+  coverages: [LineOfBusiness!]!
+  effectiveDate: String!
+  partnerId: ID
+}
+
+# ─── Policy Application ────────────────────────────────────────────────────────
+
+type PolicyApplication {
+  id: ID!
+  quote: Quote!
+  holder: PolicyHolder!
+  business: BusinessInfo!
+  status: ApplicationStatus!
+  submittedAt: String
+  approvedAt: String
+  declinedAt: String
+  declineReason: String
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  DECLINED
+  BOUND
+}
+
+# ─── Binder ────────────────────────────────────────────────────────────────────
+
+type Binder {
+  id: ID!
+  policy: Policy
+  quote: Quote!
+  effectiveDate: String!
+  expirationDate: String!
+  issuedAt: String!
+  carrier: String!
+  premium: Premium!
+  status: BinderStatus!
+}
+
+enum BinderStatus {
+  ISSUED
+  CONVERTED
+  EXPIRED
+  CANCELLED
+}
+
+type BinderRequest {
+  id: ID!
+  quoteId: ID!
+  holder: PolicyHolder!
+  paymentMethod: PaymentMethod!
+  acknowledgedAt: String
+}
+
+input BinderRequestInput {
+  quoteId: ID!
+  holderId: ID!
+  paymentMethod: PaymentMethod!
+  acknowledge: Boolean!
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  ACH
+  PAY_AS_YOU_GO
+  CHECK
+}
+
+# ─── Policy Holder ─────────────────────────────────────────────────────────────
+
+type PolicyHolder {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String
+  dateOfBirth: String
+  ssn: String
+  business: BusinessInfo!
+  policies: [Policy!]!
+  createdAt: String!
+}
+
+# ─── Business Info ─────────────────────────────────────────────────────────────
+
+type BusinessInfo {
+  id: ID!
+  name: String!
+  dba: String
+  entityType: EntityType!
+  industryClass: IndustryClass!
+  ein: String
+  foundedYear: Int
+  annualRevenue: Float
+  locations: [Location!]!
+  employees: [Employee!]!
+  vehicles: [Vehicle!]!
+  licenses: [BusinessLicense!]!
+  website: String
+}
+
+enum EntityType {
+  SOLE_PROPRIETOR
+  LLC
+  CORPORATION
+  PARTNERSHIP
+  S_CORP
+  NONPROFIT
+}
+
+type IndustryClass {
+  id: ID!
+  code: String!
+  name: String!
+  naicsCode: String
+  sicCode: String
+  description: String
+  availableCoverages: [LineOfBusiness!]!
+  professionType: ProfessionType
+}
+
+enum ProfessionType {
+  CONTRACTOR
+  HANDYMAN
+  CLEANER
+  CONSULTANT
+  FITNESS_TRAINER
+  PHOTOGRAPHER
+  ELECTRICIAN
+  PLUMBER
+  CARPENTER
+  LANDSCAPER
+  PAINTER
+  ROOFER
+  HVAC
+  IT_PROFESSIONAL
+  ACCOUNTANT
+  OTHER
+}
+
+# ─── Location ──────────────────────────────────────────────────────────────────
+
+type Location {
+  id: ID!
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  isPrimary: Boolean!
+  propertyValue: PropertyValue
+}
+
+input LocationInput {
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  state: String!
+  zip: String!
+  country: String
+}
+
+type PropertyValue {
+  buildingValue: Float
+  contentsValue: Float
+  businessInterruptionValue: Float
+  currency: String!
+}
+
+# ─── Employee ──────────────────────────────────────────────────────────────────
+
+type Employee {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  jobTitle: String
+  classification: WorkersCompClassification
+  annualWages: Float
+  isOwner: Boolean!
+  location: Location
+}
+
+input EmployeeInput {
+  firstName: String!
+  lastName: String!
+  jobTitle: String
+  classificationCode: String
+  annualWages: Float
+  isOwner: Boolean
+  locationId: ID
+}
+
+type WorkersCompClassification {
+  code: String!
+  description: String!
+  hazardGrade: String
+  rate: Float
+}
+
+# ─── Vehicle ───────────────────────────────────────────────────────────────────
+
+type Vehicle {
+  id: ID!
+  year: Int!
+  make: String!
+  model: String!
+  vin: String
+  use: VehicleUse!
+  gvw: Float
+  liabilityLimit: CoverageLimit
+  comprehensiveDeductible: Deductible
+  collisionDeductible: Deductible
+}
+
+input VehicleInput {
+  year: Int!
+  make: String!
+  model: String!
+  vin: String
+  use: VehicleUse!
+  gvw: Float
+}
+
+enum VehicleUse {
+  BUSINESS
+  COMMERCIAL
+  DELIVERY
+  SERVICE
+}
+
+# ─── Business License ──────────────────────────────────────────────────────────
+
+type BusinessLicense {
+  id: ID!
+  licenseNumber: String!
+  type: String!
+  issuingAuthority: String!
+  issuedDate: String
+  expirationDate: String
+  state: String
+}
+
+# ─── Claim ─────────────────────────────────────────────────────────────────────
+
+type Claim {
+  id: ID!
+  claimNumber: String!
+  policy: Policy!
+  type: ClaimType!
+  status: ClaimStatus!
+  details: ClaimDetails!
+  dateOfLoss: String!
+  reportedAt: String!
+  documents: [ClaimDocument!]!
+  settlement: Settlement
+  adjuster: String
+  updatedAt: String!
+}
+
+type ClaimType {
+  id: ID!
+  code: String!
+  name: String!
+  lineOfBusiness: LineOfBusiness!
+  description: String
+}
+
+enum ClaimStatus {
+  REPORTED
+  UNDER_INVESTIGATION
+  PENDING_DOCUMENTATION
+  APPROVED
+  DENIED
+  SETTLED
+  CLOSED
+  REOPENED
+}
+
+type ClaimDetails {
+  description: String!
+  locationOfLoss: Location
+  injuredParty: String
+  witnesses: [String!]
+  policeReportNumber: String
+  estimatedLoss: Float
+  currency: String
+}
+
+input ClaimInput {
+  policyId: ID!
+  claimTypeCode: String!
+  dateOfLoss: String!
+  description: String!
+  locationOfLoss: LocationInput
+  estimatedLoss: Float
+}
+
+type ClaimDocument {
+  id: ID!
+  claimId: ID!
+  name: String!
+  type: DocumentType!
+  url: String!
+  uploadedAt: String!
+  size: Int
+}
+
+enum DocumentType {
+  POLICE_REPORT
+  MEDICAL_RECORD
+  INVOICE
+  PHOTO
+  REPAIR_ESTIMATE
+  WITNESS_STATEMENT
+  OTHER
+}
+
+type Settlement {
+  id: ID!
+  claimId: ID!
+  amount: Float!
+  currency: String!
+  settledAt: String!
+  paymentMethod: PaymentMethod!
+  notes: String
+}
+
+# ─── Premium Payment ───────────────────────────────────────────────────────────
+
+type PremiumPayment {
+  id: ID!
+  policyId: ID!
+  amount: Float!
+  currency: String!
+  method: PaymentMethod!
+  status: PaymentStatus!
+  dueDate: String!
+  paidAt: String
+  payrollPeriod: String
+  wages: Float
+}
+
+input PaymentInput {
+  policyId: ID!
+  amount: Float!
+  method: PaymentMethod!
+  payrollPeriod: String
+  wages: Float
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  REFUNDED
+}
+
+# ─── Endorsement ───────────────────────────────────────────────────────────────
+
+type Endorsement {
+  id: ID!
+  policyId: ID!
+  type: EndorsementType!
+  description: String!
+  additionalPremium: Float
+  effectiveDate: String!
+  issuedAt: String!
+}
+
+enum EndorsementType {
+  ADDITIONAL_INSURED
+  WAIVER_OF_SUBROGATION
+  PRIMARY_NONCONTRIBUTORY
+  BLANKET_ADDITIONAL_INSURED
+  CYBER_LIABILITY
+  HIRED_NON_OWNED_AUTO
+  EQUIPMENT_BREAKDOWN
+  LOSS_OF_INCOME
+}
+
+input EndorsementInput {
+  type: EndorsementType!
+  description: String
+  additionalInsuredName: String
+  effectiveDate: String!
+}
+
+# ─── Certificate ───────────────────────────────────────────────────────────────
+
+type Certificate {
+  id: ID!
+  certificateNumber: String!
+  policy: Policy!
+  holder: CertificateHolder!
+  issuedAt: String!
+  effectiveDate: String!
+  expirationDate: String!
+  additionalInsured: Boolean!
+  waiverOfSubrogation: Boolean!
+  pdfUrl: String
+}
+
+input CertificateInput {
+  policyId: ID!
+  holderName: String!
+  holderEmail: String!
+  holderAddress: LocationInput
+  additionalInsured: Boolean
+  waiverOfSubrogation: Boolean
+  notifyHolder: Boolean
+}
+
+type CertificateHolder {
+  id: ID!
+  name: String!
+  email: String
+  address: Location
+  certificates: [Certificate!]!
+}
+
+# ─── Renewal & Cancellation ────────────────────────────────────────────────────
+
+type Renewal {
+  id: ID!
+  originalPolicy: Policy!
+  renewedPolicy: Policy
+  status: RenewalStatus!
+  renewalPremium: Premium
+  offerDate: String!
+  acceptedAt: String
+  declinedAt: String
+}
+
+enum RenewalStatus {
+  OFFERED
+  ACCEPTED
+  DECLINED
+  LAPSED
+  PROCESSED
+}
+
+type Cancellation {
+  id: ID!
+  policyId: ID!
+  reason: String!
+  effectiveDate: String!
+  initiatedBy: CancellationInitiator!
+  refundAmount: Float
+  currency: String
+  cancelledAt: String!
+}
+
+enum CancellationInitiator {
+  INSURED
+  CARRIER
+  NONPAYMENT
+  PARTNER
+}
+
+# ─── Coverage Line Summaries ───────────────────────────────────────────────────
+
+type GeneralLiability {
+  id: ID!
+  policy: Policy!
+  occurrenceLimit: Float!
+  aggregateLimit: Float!
+  productsCompletedOpsLimit: Float!
+  personalAdvertisingLimit: Float!
+  medicalExpenseLimit: Float!
+  deductible: Deductible
+}
+
+type WorkersComp {
+  id: ID!
+  policy: Policy!
+  employerLiabilityLimit: Float!
+  stateFundRequired: Boolean!
+  payAsYouGo: Boolean!
+  classifications: [WorkersCompClassification!]!
+  employees: [Employee!]!
+}
+
+type BOP {
+  id: ID!
+  policy: Policy!
+  generalLiability: GeneralLiability!
+  propertyLimit: Float!
+  businessInterruptionLimit: Float!
+  locations: [Location!]!
+}
+
+type CommercialAuto {
+  id: ID!
+  policy: Policy!
+  vehicles: [Vehicle!]!
+  liabilityLimit: CoverageLimit!
+  hiredNonOwnedAuto: Boolean!
+  uninsuredMotoristLimit: Float
+}
+
+type ProfessionalLiability {
+  id: ID!
+  policy: Policy!
+  perClaimLimit: Float!
+  aggregateLimit: Float!
+  retroactiveDate: String
+  deductible: Deductible
+}
+
+type TechCoverage {
+  id: ID!
+  policy: Policy!
+  techErrorsOmissionsLimit: Float!
+  cyberLiabilityLimit: Float!
+  dataBreachLimit: Float!
+  aggregateLimit: Float!
+}
+
+type EmergencyFund {
+  id: ID!
+  policy: Policy!
+  coverageAmount: Float!
+  waitingPeriodDays: Int!
+  maxBenefitDays: Int!
+  dailyBenefit: Float!
+}
+
+type Tools {
+  id: ID!
+  policy: Policy!
+  toolsLimit: Float!
+  equipmentSchedule: [ToolItem!]!
+  deductible: Deductible
+}
+
+type ToolItem {
+  id: ID!
+  description: String!
+  value: Float!
+  serialNumber: String
+}
+
+# ─── Profession-Specific Profiles ─────────────────────────────────────────────
+
+type Contractor {
+  id: ID!
+  business: BusinessInfo!
+  licenseNumber: String
+  bondAmount: Float
+  subcontractorCost: Float
+  recommendedCoverages: [CoverageType!]!
+}
+
+type Handyman {
+  id: ID!
+  business: BusinessInfo!
+  serviceTypes: [String!]!
+  toolsValue: Float
+  recommendedCoverages: [CoverageType!]!
+}
+
+type Cleaner {
+  id: ID!
+  business: BusinessInfo!
+  serviceTypes: [String!]!
+  bonded: Boolean!
+  recommendedCoverages: [CoverageType!]!
+}
+
+type Consultant {
+  id: ID!
+  business: BusinessInfo!
+  practiceArea: String!
+  annualContracts: Float
+  recommendedCoverages: [CoverageType!]!
+}
+
+type FitnessTrainer {
+  id: ID!
+  business: BusinessInfo!
+  certifications: [String!]!
+  trainingLocation: TrainingLocation!
+  recommendedCoverages: [CoverageType!]!
+}
+
+enum TrainingLocation {
+  GYM
+  CLIENT_HOME
+  OUTDOOR
+  ONLINE
+  STUDIO
+}
+
+# ─── Partner & API ─────────────────────────────────────────────────────────────
+
+type Partner {
+  id: ID!
+  name: String!
+  type: PartnerType!
+  status: PartnerStatus!
+  apiKeys: [APIKey!]!
+  webhooks: [Webhook!]!
+  agencies: [Agency!]!
+  policies: [Policy!]!
+  createdAt: String!
+}
+
+enum PartnerType {
+  PAYROLL
+  POINT_OF_SALE
+  ACCOUNTING
+  ECOMMERCE
+  PAYMENTS
+  BANKING
+  FINTECH
+  AGENCY
+  OTHER
+}
+
+enum PartnerStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+input PartnerInput {
+  name: String!
+  type: PartnerType!
+  contactEmail: String!
+  website: String
+}
+
+type Agency {
+  id: ID!
+  name: String!
+  licenseNumber: String!
+  states: [String!]!
+  partner: Partner
+  agents: [Agent!]!
+}
+
+type Agent {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  licenseNumber: String!
+  email: String!
+  agency: Agency!
+  npn: String
+}
+
+type APIKey {
+  id: ID!
+  partnerId: ID!
+  name: String!
+  prefix: String!
+  environment: Environment!
+  createdAt: String!
+  lastUsedAt: String
+  revokedAt: String
+}
+
+enum Environment {
+  SANDBOX
+  PRODUCTION
+}
+
+type Webhook {
+  id: ID!
+  partnerId: ID!
+  url: String!
+  events: [WebhookEvent!]!
+  secret: String
+  active: Boolean!
+  createdAt: String!
+}
+
+enum WebhookEvent {
+  POLICY_ISSUED
+  POLICY_CANCELLED
+  POLICY_RENEWED
+  CLAIM_SUBMITTED
+  CLAIM_STATUS_CHANGED
+  PAYMENT_PROCESSED
+  PAYMENT_FAILED
+  CERTIFICATE_ISSUED
+  QUOTE_READY
+  BINDER_ISSUED
+}
+
+input WebhookInput {
+  partnerId: ID!
+  url: String!
+  events: [WebhookEvent!]!
+  secret: String
+}
