@@ -56,6 +56,8 @@ apis:
   - url: graphql/next-insurance-graphql.md
     type: GraphQL
 common:
+- type: DomainSecurity
+  url: security/next-insurance-domain-security.yml
 - type: Website
   url: https://www.nextinsurance.com
 - type: PartnerProgram
