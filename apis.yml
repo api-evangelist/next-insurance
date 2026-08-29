@@ -23,6 +23,17 @@ description: ERGO NEXT Insurance (formerly NEXT Insurance) is a Palo Alto, Calif
   company also offers a pay-as-you-go Workers' Comp product that integrates with partner
   payroll runs so premium is calculated against actual per-cycle W-2 wages.
 type: Index
+deliveryModel:
+  model: unknown
+  open_source: false
+  commercial: false
+  callable_host: false
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - none
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: unknown
   onboarding: unknown
