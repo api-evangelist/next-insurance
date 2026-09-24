@@ -75,8 +75,6 @@ apis:
   description: Conceptual GraphQL schema for the ERGO NEXT Insurance (formerly NEXT
     Insurance) NEXT Connect embedded insurance platform.
   properties:
-  - url: graphql/next-insurance-graphql.md
-    type: GraphQL
 common:
 - type: DomainSecurity
   url: security/next-insurance-domain-security.yml
