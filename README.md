@@ -1,4 +1,4 @@
-# next-insurance
+# ERGO NEXT Insurance
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,47 +64,90 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-ERGO NEXT Insurance (formerly NEXT Insurance) — Palo Alto-based technology-first
-Property & Casualty insurer focused on U.S. small and medium-sized businesses,
-acquired in full by Munich Re's ERGO Group in July 2025 and rebranded as ERGO
-NEXT Insurance in January 2026.
+ERGO NEXT Insurance (formerly NEXT Insurance) is a Palo Alto, California technology-first Property & Casualty insurer focused on the specific needs of U.S. small and medium-sized business owners. Founded in 2016, the company offers fully digital commercial coverage including General Liability, Workers' Compensation, Business Owner's Policy (BOP), Professional Liability / Errors & Omissions, Commercial Property, Commercial Auto, Tools & Equipment, Employment Practices Liability, Product Liability, and Liquor Liability — serving more than 750,000 customers across 1,300+ professions. In March 2025 Munich Re signed a definitive agreement to acquire 100% of NEXT Insurance at a valuation of $2.6 billion; ERGO Group AG (Munich Re's primary insurance arm) closed the full acquisition on July 1, 2025 and on January 15, 2026 the company rebranded as ERGO NEXT Insurance, becoming Munich Re/ERGO's foothold in the U.S. SMB market. ERGO NEXT's partner-facing surface is NEXT Connect, an embedded insurance platform that lets payroll, point-of-sale, accounting, e-commerce, payments, banking, and fintech platforms quote and bind small-business coverage from within their own product through low-code components and API calls. NEXT Connect aggregates 15+ carriers (including ERGO NEXT itself, Travelers, Liberty Mutual, Chubb, CNA, The Hartford) and is documented in the wild through embedded-payroll partners such as Check, Gusto Embedded, Intuit QuickBooks, Square, LegalZoom, and Amazon Business Prime, but ERGO NEXT does not publish a public developer portal, OpenAPI specification, or self-serve SDKs — partner onboarding is gated through a partnerships team. The company also offers a pay-as-you-go Workers' Comp product that integrates with partner payroll runs so premium is calculated against actual per-cycle W-2 wages.
 
-## What ERGO NEXT does
+**Areas:** Insurance · Property and Casualty · Commercial Insurance · Small Business · Embedded Insurance · Workers Compensation · General Liability · Business Owners Policy · Professional Liability · Commercial Property · Commercial Auto · Underwriting
 
-- Fully digital underwriting and policy issuance for U.S. SMBs across 1,300+
-  professions and 750,000+ customers.
-- Commercial lines: General Liability, Workers' Compensation, Business Owner's
-  Policy (BOP), Professional Liability / E&O, Commercial Property, Commercial
-  Auto, Tools & Equipment, Employment Practices Liability, Product Liability,
-  Liquor Liability.
-- Pay-as-you-go Workers' Comp priced against per-cycle W-2 payroll.
-- NEXT Connect — an embedded insurance platform that lets partners in payroll,
-  POS, accounting, e-commerce, payments, banking, and fintech offer quote and
-  bind from within their own product, aggregating 15+ carriers.
+## ERGO NEXT Insurance on APIs.io
 
-## Why this profile is intentionally light
+Everything profiled for ERGO NEXT Insurance is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/next-insurance/](https://apis.io/providers/next-insurance/)** — or go straight to one of the APIs or properties below.
 
-ERGO NEXT does not currently publish a public developer portal, OpenAPI
-specification, sandbox, or self-serve SDK. Per the api-evangelist pipeline rule
-("do not create empty/placeholder OpenAPI specs"), this repo ships only the
-`apis.yml` index and this README until a real partner-facing specification is
-published — at which point the full company pipeline can be re-run against it.
+### APIs (1)
 
-The partner API surface is real but documented externally through embedded
-partners (Check, Gusto Embedded), not by ERGO NEXT itself.
+- [ERGO NEXT Insurance GraphQL](https://apis.io/apis/next-insurance/graphql/) — Conceptual GraphQL schema for the ERGO NEXT Insurance (formerly NEXT Insurance) NEXT Connect embedded insurance platform.
 
-## Key links
+### Published properties
 
-- Website: https://www.nextinsurance.com
-- Partner program: https://www.nextinsurance.com/become-a-partner/
-- NEXT Connect announcement:
-  https://www.nextinsurance.com/blog/announcing-next-connect/
-- ERGO acquisition close:
-  https://www.nextinsurance.com/blog/ergo-successfully-finalizes-the-full-acquisition-of-next-insurance/
-- ERGO NEXT rebrand:
-  https://www.nextinsurance.com/blog/next-insurance-rebrands-as-ergo-next-insurance/
-- Check integration guide:
-  https://docs.checkhq.com/docs/check-next-component-integration-guide
-- Gusto Embedded integration:
-  https://embedded.gusto.com/blog/next-insurance-workers-comp-via-gusto-embedded-payroll/
-- GitHub org: https://github.com/next-insurance
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### GraphQL (1)
+
+GraphQL schemas.
+
+- [Moved to /providers/next-insurance/](https://apis.io/graphqls/next-insurance/next-insurance-graphql/)
+
+#### Security (1)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Next Insurance Domain Security](https://apis.io/security/next-insurance/next-insurance-domain-security/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.nextinsurance.com)
+- [Blog](https://www.nextinsurance.com/blog/)
+
+## API Evangelist rating
+
+**Kin Score 5.3** — minimal · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 49.1 |
+| Contract quality | 0.0 |
+| Contract governance | 0.0 |
+| Operational transparency | 5.3 |
+| Developer ergonomics | 7.1 |
+| Access clarity | 0.0 |
+
+**Agent readiness 0.0** — human-only
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | — |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | — |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | — |
+| Rate Limit Signal | — |
+| Event Surface Described | — |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 5.3** — Insurance
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/next-insurance/](https://apis.io/providers/next-insurance/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for ERGO NEXT Insurance: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/next-insurance/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
